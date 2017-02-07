@@ -1,0 +1,61 @@
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+"Morpheus" = "Morpheus";
+"Feedback" = "Feedback";
+"Microphone Permission" = "Microphone Permission";
+"Please allow Microphone access for recording.\nSettings-Privacy-Microphone" = "Please allow Microphone access for recording.\nSettings-Privacy-Microphone";
+"Done" = "Done";
+"Upgrade" = "Upgrade";
+"Buy" = "Buy";
+"You've spent today's free quota.\nPlease buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads" = "You've spent today's free quota.\nPlease buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads";
+"Cancel" = "Cancel";
+"Later" = "Later";
+"Check Connection" = "Check Connection";
+"Morpheus should be connected to internet." = "Morpheus should be connected to internet.";
+"Listening..." = "Listening...";
+"Morpheus is listening your sentences." = "Morpheus is listening your sentences.\nSay in English.";
+"Stop" = "Stop";
+"Checking..." = "Checking...";
+"Morpheus is checking your sentences." = "Morpheus is checking your sentences.";
+"Say in English\nafter tapping\n'Say' button." = "Say in English\nafter tapping\n'Say' button.";
+"No sentences" = "No sentences";
+"Support & Feedback" = "Support & Feedback";
+"don't delete following information for supporting." = "don't delete following information for supporting.";
+"Thank you for your feedback." = "Thank you for your feedback.";
+"failed sending feeback" = "failed sending feeback";
+"Payment Error" = "Payment Error";
+"You are not authorized to purchase from AppStore." = "You are not authorized to purchase from AppStore.";
+"There isn't exist receipt." = "There isn't exist receipt.";
+"Retore is completed.\nThank you." = "Retore is completed.\nThank you.";
+"Payment" = "Payment";
+"Not updated" = "Not updated";
+"Sentence is not updated." = "Sentence is not updated.";
+"Text length exceed" = "Text length exceed";
+"Try again after deleting text." = "Try again after deleting text.";
+"Please buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads" = "Please buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads";
+"Check for Update" = "Check for Update";
+"Review" = "Review";
+"Later" = "Later";
+"Update" = "Update";
+"Confirm" = "Confirm";
+"Please update to the latest version." = "Please update to the latest version.";
+"Download the Morpheus" = "Download the Morpheus";
+"Reviews" = "Reviews";
+"Please review this app in the Appstore." = "Please review this app in the Appstore.";

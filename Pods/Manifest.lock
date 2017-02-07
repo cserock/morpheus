@@ -1,0 +1,148 @@
+PODS:
+  - '!ProtoCompiler (3.0.2)':
+    - Protobuf (~> 3.0)
+  - '!ProtoCompiler-gRPCPlugin (1.0.2)':
+    - '!ProtoCompiler (= 3.0.2)'
+    - gRPC-ProtoRPC (= 1.0.2)
+  - AFNetworking (3.1.0):
+    - AFNetworking/NSURLSession (= 3.1.0)
+    - AFNetworking/Reachability (= 3.1.0)
+    - AFNetworking/Security (= 3.1.0)
+    - AFNetworking/Serialization (= 3.1.0)
+    - AFNetworking/UIKit (= 3.1.0)
+  - AFNetworking/NSURLSession (3.1.0):
+    - AFNetworking/Reachability
+    - AFNetworking/Security
+    - AFNetworking/Serialization
+  - AFNetworking/Reachability (3.1.0)
+  - AFNetworking/Security (3.1.0)
+  - AFNetworking/Serialization (3.1.0)
+  - AFNetworking/UIKit (3.1.0):
+    - AFNetworking/NSURLSession
+  - BoringSSL (7.0):
+    - BoringSSL/Implementation (= 7.0)
+    - BoringSSL/Interface (= 7.0)
+  - BoringSSL/Implementation (7.0):
+    - BoringSSL/Interface (= 7.0)
+  - BoringSSL/Interface (7.0)
+  - Firebase/AdMob (3.11.1):
+    - Firebase/Core
+    - Google-Mobile-Ads-SDK (= 7.16.0)
+  - Firebase/Auth (3.11.1):
+    - Firebase/Core
+    - FirebaseAuth (= 3.1.0)
+  - Firebase/Core (3.11.1):
+    - FirebaseAnalytics (= 3.6.0)
+    - FirebaseCore (= 3.4.7)
+  - Firebase/Database (3.11.1):
+    - Firebase/Core
+    - FirebaseDatabase (= 3.1.1)
+  - Firebase/RemoteConfig (3.11.1):
+    - Firebase/Core
+    - FirebaseRemoteConfig (= 1.3.2)
+  - FirebaseAnalytics (3.6.0):
+    - FirebaseCore (~> 3.4)
+    - FirebaseInstanceID (~> 1.0)
+    - GoogleInterchangeUtilities (~> 1.2)
+    - GoogleSymbolUtilities (~> 1.1)
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+  - FirebaseAuth (3.1.0):
+    - FirebaseAnalytics (~> 3.6)
+    - GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)
+    - GTMSessionFetcher/Core (~> 1.1)
+  - FirebaseCore (3.4.7):
+    - GoogleInterchangeUtilities (~> 1.2)
+    - GoogleSymbolUtilities (~> 1.1)
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+  - FirebaseDatabase (3.1.1):
+    - FirebaseAnalytics (~> 3.5)
+  - FirebaseInstanceID (1.0.8)
+  - FirebaseRemoteConfig (1.3.2):
+    - FirebaseAnalytics (~> 3.6)
+    - FirebaseInstanceID (~> 1.0)
+    - GoogleInterchangeUtilities (~> 1.2)
+    - GoogleSymbolUtilities (~> 1.1)
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
+  - Google-Mobile-Ads-SDK (7.16.0)
+  - googleapis (0.0.1):
+    - '!ProtoCompiler-gRPCPlugin (~> 1.0.0-pre1.1)'
+    - googleapis/Messages (= 0.0.1)
+    - googleapis/Services (= 0.0.1)
+  - googleapis/Messages (0.0.1):
+    - '!ProtoCompiler-gRPCPlugin (~> 1.0.0-pre1.1)'
+    - Protobuf
+  - googleapis/Services (0.0.1):
+    - '!ProtoCompiler-gRPCPlugin (~> 1.0.0-pre1.1)'
+    - googleapis/Messages
+    - gRPC-ProtoRPC
+  - GoogleInterchangeUtilities (1.2.2):
+    - GoogleSymbolUtilities (~> 1.1)
+  - GoogleSymbolUtilities (1.1.2)
+  - GoogleToolboxForMac/DebugUtils (2.1.1):
+    - GoogleToolboxForMac/Defines (= 2.1.1)
+  - GoogleToolboxForMac/Defines (2.1.1)
+  - GoogleToolboxForMac/NSData+zlib (2.1.1):
+    - GoogleToolboxForMac/Defines (= 2.1.1)
+  - GoogleToolboxForMac/NSDictionary+URLArguments (2.1.1):
+    - GoogleToolboxForMac/DebugUtils (= 2.1.1)
+    - GoogleToolboxForMac/Defines (= 2.1.1)
+    - GoogleToolboxForMac/NSString+URLArguments (= 2.1.1)
+  - GoogleToolboxForMac/NSString+URLArguments (2.1.1)
+  - gRPC (1.0.2):
+    - gRPC-Core (= 1.0.2)
+    - gRPC-RxLibrary (= 1.0.2)
+  - gRPC-Core (1.0.2):
+    - gRPC-Core/Implementation (= 1.0.2)
+    - gRPC-Core/Interface (= 1.0.2)
+  - gRPC-Core/Implementation (1.0.2):
+    - BoringSSL (~> 7.0)
+    - gRPC-Core/Interface (= 1.0.2)
+  - gRPC-Core/Interface (1.0.2)
+  - gRPC-ProtoRPC (1.0.2):
+    - gRPC (= 1.0.2)
+    - gRPC-RxLibrary (= 1.0.2)
+    - Protobuf (~> 3.0)
+  - gRPC-RxLibrary (1.0.2)
+  - GTMSessionFetcher/Core (1.1.8)
+  - Protobuf (3.1.0)
+
+DEPENDENCIES:
+  - AFNetworking (~> 3.0)
+  - Firebase/AdMob
+  - Firebase/Auth
+  - Firebase/Core
+  - Firebase/Database
+  - Firebase/RemoteConfig
+  - googleapis (from `.`)
+
+EXTERNAL SOURCES:
+  googleapis:
+    :path: .
+
+SPEC CHECKSUMS:
+  '!ProtoCompiler': cfad9cbe5299a4923b1c3c8f150818c91efd0b6d
+  '!ProtoCompiler-gRPCPlugin': ee00d28bb35b26e2657f239833b8f2aa66724f96
+  AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
+  BoringSSL: 50035b9d9eeff5529587311782fc57c00ebf13ae
+  Firebase: 53b2343db1ebfa3eb16bdb4318b8bb65360b2220
+  FirebaseAnalytics: 9c67af0ebeb8d2146c9b4ea2616439affa947b58
+  FirebaseAuth: b436e4ecebe068bf8e8c6e4e29de5756ffe7ee24
+  FirebaseCore: 46afaf2c2e0419ea7d3acfb08cf26a461a75fe85
+  FirebaseDatabase: 6de92187481ff0e8e124064f21742e95ee883b02
+  FirebaseInstanceID: ba1e640935235e5fac39dfa816fe7660e72e1a8a
+  FirebaseRemoteConfig: a03e73abef495c0a0063e2ff461f0c4e8af4b57f
+  Google-Mobile-Ads-SDK: 92dff0e9ce1cfdfe640d9d80ab86d5e4371e478f
+  googleapis: 0b8d20676f3e3d45cdbe1ae10c28d921991e7682
+  GoogleInterchangeUtilities: d5bc4d88d5b661ab72f9d70c58d02ca8c27ad1f7
+  GoogleSymbolUtilities: 631ee17048aa5e9ab133470d768ea997a5ef9b96
+  GoogleToolboxForMac: 8e329f1b599f2512c6b10676d45736bcc2cbbeb0
+  gRPC: dd3a91e0fb770b9fc4f43d1292fb19f2a2e04158
+  gRPC-Core: cc4a7613190ff0bc60a0c1e702ef07cd3f868ae6
+  gRPC-ProtoRPC: 11533510522a5e9627883a597a796cfe6bef05f3
+  gRPC-RxLibrary: 02cc70b76bc0c5bc622ba27595cca2598d9fe528
+  GTMSessionFetcher: 6f8d8b28b7e345549ac471071608170b31cb4977
+  Protobuf: 265e9977d04a83eba9cefb0bed3ad07e41033b4a
+
+PODFILE CHECKSUM: 19dc32d9b0282a9e9b25256830a50140b4a30b16
+
+COCOAPODS: 1.2.0.rc.1

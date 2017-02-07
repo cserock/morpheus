@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ad_protage</key>
+	<integer>30</integer>
+	<key>daily_free_listen_item</key>
+	<integer>15</integer>
+	<key>daily_free_check_item</key>
+	<integer>5</integer>
+	<key>free_char_length</key>
+	<integer>256</integer>
+	<key>is_update</key>
+	<false/>
+	<key>iap_enabled</key>
+	<true/>
+</dict>
+</plist>

@@ -1,0 +1,75 @@
+
+/* Class = "UIButton"; normalTitle = "Say"; ObjectID = "07v-8n-E9f"; */
+"07v-8n-E9f.normalTitle" = "말하기";
+
+/* Class = "UINavigationItem"; title = "Morpheus"; ObjectID = "0be-SC-a1R"; */
+"0be-SC-a1R.title" = "모피어스";
+
+/* Class = "UIViewController"; title = "Morpheus"; ObjectID = "2CB-IE-EeS"; */
+"2CB-IE-EeS.title" = "모피어스";
+
+/* Class = "UITextField"; text = "English Region"; ObjectID = "5Ur-fS-ImA"; */
+"5Ur-fS-ImA.text" = "영어 지역 선택";
+
+/* Class = "UILabel"; text = "Buy"; ObjectID = "9PZ-cu-yfT"; */
+"9PZ-cu-yfT.text" = "구매하기";
+
+/* Class = "UIButton"; normalTitle = "Listen"; ObjectID = "Cvt-tt-PHM"; */
+"Cvt-tt-PHM.normalTitle" = "듣기";
+
+/* Class = "UIButton"; selectedTitle = "Stop"; ObjectID = "Cvt-tt-PHM"; */
+"Cvt-tt-PHM.selectedTitle" = "정지";
+
+/* Class = "UILabel"; text = "Restore"; ObjectID = "EiQ-Zh-lvB"; */
+"EiQ-Zh-lvB.text" = "구매 내역 복원";
+
+/* Class = "UITableViewSection"; headerTitle = "Support"; ObjectID = "Fb4-Pp-rwe"; */
+"Fb4-Pp-rwe.headerTitle" = "지원";
+
+/* Class = "UITabBarItem"; title = "Item"; ObjectID = "Feg-Ku-Mjk"; */
+"Feg-Ku-Mjk.title" = "Item";
+
+/* Class = "UIButton"; normalTitle = "Check"; ObjectID = "KYd-V8-oOM"; */
+"KYd-V8-oOM.normalTitle" = "문법 체크";
+
+/* Class = "UILabel"; text = "Reviews"; ObjectID = "LSn-Zq-ny0"; */
+"LSn-Zq-ny0.text" = "리뷰 남기기";
+
+/* Class = "UILabel"; text = "Invite Friends"; ObjectID = "OhY-hB-bBB"; */
+"OhY-hB-bBB.text" = "친구 초대하기";
+
+/* Class = "UITableViewController"; title = "Setting"; ObjectID = "PC2-Uc-h0U"; */
+"PC2-Uc-h0U.title" = "설정";
+
+/* Class = "UIButton"; normalTitle = "Send"; ObjectID = "RnM-2a-AvR"; */
+"RnM-2a-AvR.normalTitle" = "보내기";
+
+/* Class = "UITableViewSection"; headerTitle = "English Region"; ObjectID = "c1r-Ow-qvH"; */
+"c1r-Ow-qvH.headerTitle" = "영어 지역 선택";
+
+/* Class = "UIButton"; normalTitle = "Reset"; ObjectID = "deH-uP-9Wg"; */
+"deH-uP-9Wg.normalTitle" = "지우기";
+
+/* Class = "UITableViewSection"; headerTitle = "Upgrade - Unlimited / 2,048 chars / No Ads"; ObjectID = "e1e-4m-F6l"; */
+"e1e-4m-F6l.headerTitle" = "업그레이드 : 일일 무제한 이용 / 2,048자 지원 / 광고 제거";
+
+/* Class = "UILabel"; text = "Say in English\nafter tapping\n'Say' button."; ObjectID = "iRA-DJ-hcO"; */
+"iRA-DJ-hcO.text" = "'말하기' 버튼을\n탭한 후\n프리토킹을\n시작하세요.";
+
+/* Class = "UINavigationItem"; title = "Settings"; ObjectID = "ldk-ur-FBd"; */
+"ldk-ur-FBd.title" = "설정";
+
+/* Class = "UILabel"; text = "Feedback"; ObjectID = "lzr-3u-cBP"; */
+"lzr-3u-cBP.text" = "피드백";
+
+/* Class = "UILabel"; text = "checking complete"; ObjectID = "or1-fc-uKC"; */
+"or1-fc-uKC.text" = "문법 체크 완료시";
+
+/* Class = "UITableViewSection"; headerTitle = "Vibration"; ObjectID = "veG-fq-cgh"; */
+"veG-fq-cgh.headerTitle" = "진동 설정";
+
+/* Class = "UINavigationController"; title = "home_navi"; ObjectID = "vnU-hd-WuV"; */
+"vnU-hd-WuV.title" = "home_navi";
+
+/* Class = "UILabel"; text = "listening complete"; ObjectID = "zBH-jP-oFQ"; */
+"zBH-jP-oFQ.text" = "문장 인식 완료시";

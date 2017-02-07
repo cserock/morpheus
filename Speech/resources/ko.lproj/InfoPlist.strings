@@ -1,0 +1,11 @@
+/* 
+  InfoPlist.strings
+  QuestRunner
+
+  Created by Rock Kang on 13. 10. 11..
+
+*/
+
+CFBundleDisplayName = "모피어스";
+CFBundleName = "모피어스";
+UILaunchStoryboardName = "LaunchScreenKo";

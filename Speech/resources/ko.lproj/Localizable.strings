@@ -1,0 +1,61 @@
+/*
+ Licensed to the Apache Software Foundation (ASF) under one
+ or more contributor license agreements.  See the NOTICE file
+ distributed with this work for additional information
+ regarding copyright ownership.  The ASF licenses this file
+ to you under the Apache License, Version 2.0 (the
+ "License"); you may not use this file except in compliance
+ with the License.  You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing,
+ software distributed under the License is distributed on an
+ "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ KIND, either express or implied.  See the License for the
+ specific language governing permissions and limitations
+ under the License.
+ */
+
+"Morpheus" = "모피어스";
+"Feedback" = "피드백";
+"Microphone Permission" = "마이크 권한";
+"Please allow Microphone access for recording.\nSettings-Privacy-Microphone" = "음성 인식을 위해 마이크 권한이 필요합니다.\n설정-개인 정보 보호-마이크";
+"Done" = "확인";
+"Upgrade" = "업그레이드";
+"Buy" = "구매하기";
+"You've spent today's free quota.\nPlease buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads" = "오늘의 무료 기능을 모두 사용했습니다.\n업그레이드 팩을 구매해서\n제한없이 이용하세요.\n\n일일 무제한 사용\n2,048 글자수 지원\n광고 제거";
+"Cancel" = "취소";
+"Later" = "다음에";
+"Check Connection" = "인터넷 연결 확인";
+"Morpheus should be connected to internet." = "모피어스는 인터넷에 연결되어 있어야 합니다.";
+"Listening..." = "듣는 중...";
+"Morpheus is listening your sentences." = "모피어스가 듣고 있습니다.\n프리토킹을 시작하세요.\n인식이 완료되면 자동으로 정지됩니다.";
+"Stop" = "정지";
+"Checking..." = "체크 중...";
+"Morpheus is checking your sentences." = "모피어스가 문법을 체크하고 있습니다.";
+"Say in English\nafter tapping\n'Say' button." = "'말하기'버튼을 탭한 후\n프리토킹을 시작하세요.";
+"No sentences" = "입력 문장 확인";
+"Support & Feedback" = "문의 & 피드백";
+"don't delete following information for supporting." = "빠른 지원을 위해 아래 내용을 지우지 마세요.";
+"Thank you for your feedback." = "의견을 주셔서 감사합니다.";
+"failed sending feeback" = "failed sending feeback";
+"Payment Error" = "결제 에러";
+"You are not authorized to purchase from AppStore." = "앱스토어 결제 권한이 없습니다.";
+"There isn't exist receipt." = "결제 내역이 없습니다.";
+"Retore is completed.\nThank you." = "이전 구매 복원이 완료되었습니다.\n감사합니다.";
+"Payment" = "결제";
+"Not updated" = "변경사항 확인";
+"Sentence is not updated." = "채크 이후 변경된 부분이 없습니다.";
+"Text length exceed" = "텍스트 길이 초과";
+"Try again after deleting text." = "제한 글자 수 내에서 다시 시도해 주세요.";
+"Please buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads" = "업그레이드 팩을 구매해서\n제한없이 이용하세요.\n\n일일 무제한 사용\n2,048 글자수 지원\n광고 제거";
+"Check for Update" = "업데이트 알림";
+"Review" = "리뷰하기";
+"Later" = "다음에";
+"Update" = "업데이트";
+"Confirm" = "확인";
+"Please update to the latest version." = "최신 버전으로 업데이트 해주세요.";
+"Download the Morpheus" = "완벽한 영어 프리토킹을 위해 '모피어스'를 다운로드 하세요.";
+"Reviews" = "평가하기";
+"Please review this app in the Appstore." = "앱스토어에서 리뷰를 남겨주세요.";
