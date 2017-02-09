@@ -36,6 +36,7 @@
 		CFC22F9A1E37328C00D549E8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CFC22F991E37328C00D549E8 /* Assets.xcassets */; };
 		CFC22F9D1E3747ED00D549E8 /* Reachability.m in Sources */ = {isa = PBXBuildFile; fileRef = CFC22F9C1E3747ED00D549E8 /* Reachability.m */; settings = {COMPILER_FLAGS = "-fno-objc-arc"; }; };
 		CFD7285F1E39B5C9009135D8 /* UIButton+Badge.m in Sources */ = {isa = PBXBuildFile; fileRef = CFD7285E1E39B5C9009135D8 /* UIButton+Badge.m */; };
+		CFED24831E4C3BFA003B865E /* Morpheus-4234ee9b0534.json in Resources */ = {isa = PBXBuildFile; fileRef = CFED24821E4C3BFA003B865E /* Morpheus-4234ee9b0534.json */; };
 		D34C17CE1C948F5700D69BCA /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = D34C17CD1C948F5700D69BCA /* main.m */; };
 		D34C17D11C948F5700D69BCA /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = D34C17D01C948F5700D69BCA /* AppDelegate.m */; };
 		D34C17DC1C948F5800D69BCA /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = D34C17DA1C948F5800D69BCA /* LaunchScreen.storyboard */; };
@@ -86,6 +87,7 @@
 		CFC22F9C1E3747ED00D549E8 /* Reachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Reachability.m; sourceTree = "<group>"; };
 		CFD7285E1E39B5C9009135D8 /* UIButton+Badge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIButton+Badge.m"; sourceTree = "<group>"; };
 		CFD728601E39B603009135D8 /* UIButton+Badge.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIButton+Badge.h"; sourceTree = "<group>"; };
+		CFED24821E4C3BFA003B865E /* Morpheus-4234ee9b0534.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = "Morpheus-4234ee9b0534.json"; sourceTree = "<group>"; };
 		D34C17C91C948F5700D69BCA /* Speech.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Speech.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D34C17CD1C948F5700D69BCA /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		D34C17CF1C948F5700D69BCA /* AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -169,6 +171,7 @@
 		D34C17CB1C948F5700D69BCA /* Speech */ = {
 			isa = PBXGroup;
 			children = (
+				CFED24821E4C3BFA003B865E /* Morpheus-4234ee9b0534.json */,
 				CF3F78C91E4457A200B3ADEB /* LaunchScreenKo.storyboard */,
 				CF4D56D71E3BD0D0000BD247 /* resources */,
 				CF46087A1E38792200AA95BE /* GoogleService-Info.plist */,
@@ -230,6 +233,7 @@
 				D34C17C71C948F5700D69BCA /* Resources */,
 				A6C1304F9E6165DD748FC67B /* [CP] Embed Pods Frameworks */,
 				D8EE167099E5A7E524284D70 /* [CP] Copy Pods Resources */,
+				CF20A28D1E4C473D0076F8B1 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -304,6 +308,7 @@
 				CF4D56FE1E3BD0D1000BD247 /* InfoPlist.strings in Resources */,
 				CF54699A1E433DDA00902632 /* imgChecked.png in Resources */,
 				CF46087B1E38792200AA95BE /* GoogleService-Info.plist in Resources */,
+				CFED24831E4C3BFA003B865E /* Morpheus-4234ee9b0534.json in Resources */,
 				CF3F78C01E444B5C00B3ADEB /* logo.png in Resources */,
 				CF4D56FA1E3BD0D1000BD247 /* btnReset@3x.png in Resources */,
 				CF4D56F91E3BD0D1000BD247 /* btnReset@2x.png in Resources */,
@@ -328,6 +333,19 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${SRCROOT}/Pods/Target Support Files/Pods-Speech/Pods-Speech-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		CF20A28D1E4C473D0076F8B1 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 12;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Replace this path with the path to the key you just downloaded\nJSON_FILE=/Users/1002658/Documents/workspace_xcode/morpheus/Speech/Morpheus-4234ee9b0534.json\n\n# Replace this with the GOOGLE_APP_ID from your GoogleService-Info.plist file\nGOOGLE_APP_ID=1:1087273379293:ios:d2451a8fa4e69a46\n\ndefaults write com.google.SymbolUpload version -integer 1   # creates file if it does not exist\nJSON=$(cat \"${JSON_FILE}\")\n/usr/bin/plutil -replace \"app_${GOOGLE_APP_ID//:/_}\" -json \"${JSON}\" \"$HOME/Library/Preferences/com.google.SymbolUpload.plist\"\n\"${PODS_ROOT}\"/FirebaseCrash/upload-sym";
 		};
 		D7376F491EC06AD174E07DB4 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
