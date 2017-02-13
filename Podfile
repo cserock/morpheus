@@ -13,6 +13,7 @@ target 'Speech' do
   pod 'Firebase/Database'
   pod 'Firebase/AdMob'
   pod 'Firebase/RemoteConfig'
+  pod 'Firebase/Crash'
 end
 
 

@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "morpheus-b6233",
+  "private_key_id": "4234ee9b05346a870ad257177c56a9b144e09dd3",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQDAyrYJp30kwF8S\nBtmbFASw9zKbp7Lr4guY1qdoXlzWH6jlwmyABP5ugkK0Cu33tb26AjWf4YCiaG51\nZ/8F0g+/EBqWGsZNFoUBcpQDQ/F/c6a1dubOEQIgPiiE1Gd/Vq1sIIzwmGpyn7ur\nZ7v+1ExHrSl7QC44CRQDETaqqq89l5e7rbsrJJ0ETBEsjc/dQA2DeU9nmxetHtLb\nf6thQg6Q384VGQjNT88GxC6H05288ZOKWf7MYSGvOKAa2BfKYLKkGpH1oaZJz4GU\n9goPY7ZIk0F4xwMI6bOQXuqTBB3fDWB5/9mKO9dMU5H2gFaSpTx3LJu/yAs6w/VS\n4vMtDsWBAgMBAAECggEAHxmUPAJ0wZT2wSWxvL6B8zotQ8bNqheQ31rhLojqWPBK\ngqXWcuBbWuBQelK5CJicvoDUvbHW2lwWVYItNXcpaxzh7QzsqErVseIV1mEDeBfj\n8Kn5mYxM136vcp4BBB2rZCHsGnO72DnEQGY/gWAl3folEujLi+aK/+Oq+eUG19xw\nvw6OCxV40SsMtyEVAtrUdZnGjVlJOekOTM7PRwaxw+bXfREpYKQ5ltX/kTMEP8/V\n4H7/mS6ZfnBx4dn4zTnRx5zXyn5dZnjxVo+g3NChnPS92V1gK5sZMrGnMliLY1JG\n2I3+Icudgq5w7PlyPmt5lXJ6uZ+1INTjj0r+ntG9AQKBgQDjvRJGLUfDeitM3N0i\neX1RwQuGFShkLOxB+h07QpQcxt+UKUZoshVeeyQHRdeadTEG2T2Lqq9lAxk0L61k\n7oNzxjScQC9nTPre+Ru/m7GzRra/5ANif1pRhR43xqpnQOgfBD1RKWkvjVwZoPGc\no4jsleLQA5nQADChyUNiwuiSaQKBgQDYt26uY8VQtbfSfzRnKwE5eQ1Pfm0eKaWI\ngV6oi2ezvG0Drpd7WleKVTNSYTUf+qZbSRAMpla4lD+SOCx5iZEjUvAk/gnuSISi\nO76aWbNn5YV1U2cWx3iZ/ERuH/JSd9h9ipB89DNvUWtrqOVvQiyuZIgSiXbPN57w\no7aq0DsHWQKBgDYpJwlth12j1lxnQmgKgJVK1dTDf2GjlWRzeTQ4t0TIvy9bSZVo\nlNBtdLoOECJ5sHkyfQKUSzY4sGvK0u/oEXcdMjHeyedFVXxlvgWpn29FZ/zm2y83\nnmE4yWD2bFw2AX4u4e5FbPCUK80ki5F3Cv9I/jH+STxAb1Bqrw3z0J/RAoGBAMqk\nkzEsB9gVY2LIIVcK5mU4ZRLdE+ltZeTDm6CcYga1/XXA7tKgQlUOoCO607MobB/V\nrNU3QMXtkZgHQMcQtI9EQVtF1EFku+j7Vpn7oH9ZJjb0GuQ49vN96PrUkoE8oUma\npMrCicngZ0LPNmKXjTIwvPAga+ENkGhRnUAR3/BZAoGBAJH44iwx1XZSdqV9ssXf\npGj82NK4Hg+vL7pxTKcWTrTPQUYqkBmQK69VInXx2kKJ5pRRzU+67hNddcgqUcCO\nlqMOVRCO0QmZAf4/sYtQTMfudFBsMmSkRix1N2z7Kd3QvvSGz3e0XHTmg4AT4rDA\nYW4Kmk24+epV+5FLLDhVNsYh\n-----END PRIVATE KEY-----\n",
+  "client_email": "symbol-upload-service-account@morpheus-b6233.iam.gserviceaccount.com",
+  "client_id": "114474678236345153176",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://accounts.google.com/o/oauth2/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/symbol-upload-service-account%40morpheus-b6233.iam.gserviceaccount.com"
+}
