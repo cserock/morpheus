@@ -569,7 +569,7 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = me.neosave.morpheus;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "09293dbc-46fa-46bc-9e8b-6e68b8d774c5";
+				PROVISIONING_PROFILE = "0c9c90a3-ddd2-42e4-a31c-825dd97079ac";
 				PROVISIONING_PROFILE_SPECIFIER = me.neosave.morpheus.dist;
 			};
 			name = Release;

@@ -62,6 +62,7 @@
 @property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
 @property (weak, nonatomic) IBOutlet UILabel *lblTextCount;
 @property (weak, nonatomic) IBOutlet UIImageView *imgCheckedGrammer;
+@property (weak, nonatomic) IBOutlet UIView *dimmedView;
 
 @property (weak, nonatomic) IBOutlet UIButton *btnListen;
 @property (nonatomic, strong) NSString *englishRegionCode;
@@ -239,10 +240,15 @@ NSString *const kIsUpdateConfigKey = @"is_update";
         [self updateButtonBadge];
         
         [_spinner stopAnimating];
+        _dimmedView.hidden = YES;
         
         // ...
     } withCancelBlock:^(NSError * _Nonnull error) {
         NSLog(@"%@", error.localizedDescription);
+        
+        [_spinner stopAnimating];
+        _dimmedView.hidden = YES;
+        [self showAlertTempError];
     }];
 }
 
@@ -294,6 +300,11 @@ NSString *const kIsUpdateConfigKey = @"is_update";
 }
 
 - (void) decreaseCount :(NSString*) limitName {
+    
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    [defaults setBool:YES forKey:@"isRunAtOnce"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+    
     if([limitName isEqualToString:@"listen"]){
         _limitListenCount--;
         
@@ -334,6 +345,8 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     [super viewDidLoad];
     
     [self checkReachability];
+    
+    _dimmedView.hidden = NO;
     
     // [START get_remote_config_instance]
     self.remoteConfig = [FIRRemoteConfig remoteConfig];
@@ -456,6 +469,8 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     _spinner.center = CGPointMake((self.navigationController.view.frame.size.width/2), (self.navigationController.view.frame.size.height/2));
     _spinner.hidesWhenStopped = YES;
     [self.navigationController.view addSubview:_spinner];
+    
+    [_spinner startAnimating];
 }
 
 
@@ -465,7 +480,6 @@ NSString *const kIsUpdateConfigKey = @"is_update";
         return;
     }
     
-    [_spinner startAnimating];
     _uid = [FIRAuth auth].currentUser.uid;
     
     NSLog(@"fetchConfig uid : @%@", _uid);
@@ -486,45 +500,60 @@ NSString *const kIsUpdateConfigKey = @"is_update";
         if (status == FIRRemoteConfigFetchStatusSuccess) {
             NSLog(@"Config fetched!");
             [self.remoteConfig activateFetched];
+            
+            _dailyFreeListenItem = [self.remoteConfig[kDailyFreeListenItemConfigKey].stringValue intValue];
+            _dailyFreeCheckItem = [self.remoteConfig[kDailyFreeListenCheckItemConfigKey].stringValue intValue];
+            _iApEnabled = self.remoteConfig[kInAppEnabledConfigKey].boolValue;
+            _adProtage = [self.remoteConfig[kAdProtageConfigKey].stringValue intValue];
+            _isUpdate = self.remoteConfig[kIsUpdateConfigKey].boolValue;
+            _textLimitCount = [self.remoteConfig[kFreeCharLengthConfigKey].stringValue intValue];
+            
+            if(_isPaid){
+                _textLimitCount = PAID_TEXT_LIMIT;
+                
+                _limitListenCount = 0;
+                _limitCheckCount = 0;
+                
+                [self updateButtonBadge];
+                
+                [_spinner stopAnimating];
+                _dimmedView.hidden = YES;
+            } else {
+                
+                [self initUserLimit];
+                
+                if(!_isPurchasing){
+                    
+                    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                    Boolean isRunAtOnce = [defaults boolForKey:@"isRunAtOnce"];
+                    
+                    NSLog(@"isRunAtOnce : %d", isRunAtOnce);
+
+                    // show ad
+                    if(isRunAtOnce){
+                        [self showAd];
+                    }
+                }
+            }
+            
+            NSLog(@"_dailyFreeListenItem : %d, _dailyFreeCheckItem : %d, _iApEnabled : %d, _adProtage : %d, _textLimitCount : %d, _isUpdate : %d", _dailyFreeListenItem, _dailyFreeCheckItem, _iApEnabled, _adProtage, _textLimitCount, _isUpdate);
+            
+            
+            [self updateLblTextLength:_textView.text.length];
+            
+            if(_isUpdate){
+                [self showUpdateAlert];
+            }
+            
         } else {
             NSLog(@"Config not fetched");
             NSLog(@"Error %@", error.localizedDescription);
-        }
-        
-        _dailyFreeListenItem = [self.remoteConfig[kDailyFreeListenItemConfigKey].stringValue intValue];
-        _dailyFreeCheckItem = [self.remoteConfig[kDailyFreeListenCheckItemConfigKey].stringValue intValue];
-        _iApEnabled = self.remoteConfig[kInAppEnabledConfigKey].boolValue;
-        _adProtage = [self.remoteConfig[kAdProtageConfigKey].stringValue intValue];
-        _isUpdate = self.remoteConfig[kIsUpdateConfigKey].boolValue;
-        _textLimitCount = [self.remoteConfig[kFreeCharLengthConfigKey].stringValue intValue];
-        
-        if(_isPaid){
-            _textLimitCount = PAID_TEXT_LIMIT;
-            
-            _limitListenCount = 0;
-            _limitCheckCount = 0;
-            
-            [self updateButtonBadge];
-            
             [_spinner stopAnimating];
-        } else {
-            
-            [self initUserLimit];
-            
-            if(!_isPurchasing){
-                // show ad
-                [self showAd];
-            }
+            _dimmedView.hidden = YES;
+            [self showAlertTempError];
         }
         
-        NSLog(@"_dailyFreeListenItem : %d, _dailyFreeCheckItem : %d, _iApEnabled : %d, _adProtage : %d, _textLimitCount : %d, _isUpdate : %d", _dailyFreeListenItem, _dailyFreeCheckItem, _iApEnabled, _adProtage, _textLimitCount, _isUpdate);
         
-        
-        [self updateLblTextLength:_textView.text.length];
-        
-        if(_isUpdate){
-            [self showUpdateAlert];
-        }
         
     }];
     // [END fetch_config_with_callback]
@@ -556,6 +585,14 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     AVAudioSession *audioSession = [AVAudioSession sharedInstance];
     [audioSession setActive:NO error:nil];
     
+}
+
+- (void) showAlertTempError {
+    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Temporary failure",nil)
+                                                    message:NSLocalizedString(@"Please use after a while.",nil)
+                                                   delegate:self
+                                          cancelButtonTitle:NSLocalizedString(@"Done",nil) otherButtonTitles:nil];
+    [alert show];
 }
 
 - (Boolean) checkReachability {
@@ -830,180 +867,196 @@ NSString *const kIsUpdateConfigKey = @"is_update";
              NSDictionary *jsonDict = (NSDictionary *) responseObject;
              
              Boolean result = [[jsonDict objectForKey:@"result"] boolValue];
-             int score = [[jsonDict objectForKey:@"score"] intValue];
              
-             NSLog(@"result : %d / score : %d", result, score);
-             
-             NSArray *errors = [jsonDict objectForKey:@"errors"];
-             
-             /*
-             NSArray *lawErrors = [jsonDict objectForKey:@"errors"];
-            
-             // process law errors
-             NSMutableArray *errors = [NSMutableArray array];
-             
-             for (int i = 0; i < [lawErrors count]; i++) {
-                 
-                 NSDictionary *error = [lawErrors objectAtIndex: i];
-                 NSString *targetWord = [error objectForKey:@"bad"];
-                 
-                 NSArray *componentsSeparatedByWhiteSpace = [targetWord componentsSeparatedByString:@" "];
-                 
-                 if([componentsSeparatedByWhiteSpace count] <= 1){
-                     [errors addObject:error];
-                 }
-             }
-             */
-             
-             NSLog(@"errors : %@", errors);
-             
-             NSDictionary *error = nil;
-             int length = 0;
-             int offset = 0;
-             
-             NSArray *betterWords = nil;
-             NSString *betterWord = @"";
-             NSString *badWord = @"";
-             
-             
-             NSMutableArray *offsets = [NSMutableArray array];
-             
-             for (int i = 0; i < [errors count]; i++) {
-                 
-                 error = [errors objectAtIndex: i];
-                 
-                 offset = [[error objectForKey:@"offset"] intValue];
-                 [offsets addObject:[NSNumber numberWithInteger:offset]];
-                 
+             if(!result){
+                 [self hideInfoAlert];
+                 [self showAlertTempError];
+                 return;
              }
              
-             NSLog(@"offsets : %@", offsets);
              
-             NSMutableArray *resultWords = [NSMutableArray array];
+             @try {
              
-             
-             for (int i = 0; i < [errors count]; i++) {
+                 int score = [[jsonDict objectForKey:@"score"] intValue];
                  
-                 error = [errors objectAtIndex: i];
+                 NSLog(@"result : %d / score : %d", result, score);
                  
-                 badWord = [error objectForKey:@"bad"];
-                 length = [[error objectForKey:@"length"] intValue];
+                 NSArray *errors = [jsonDict objectForKey:@"errors"];
                  
-                 // offset
-                 offset = [[offsets objectAtIndex:i] intValue];
+                 /*
+                 NSArray *lawErrors = [jsonDict objectForKey:@"errors"];
+                
+                 // process law errors
+                 NSMutableArray *errors = [NSMutableArray array];
                  
-                 betterWords = [error objectForKey:@"better"];
-                 betterWord = [betterWords objectAtIndex: 0];
-                 
-                 [resultWords addObject:betterWord];
-                 
-                 NSLog(@"%d - bad : %@ / batter : %@ / length : %d / offset : %d", i, badWord, betterWord, length, offset);
-                 
-                 NSString *res = [_checkedGrammerString substringWithRange:NSMakeRange(offset, length)];
-                 NSLog(@"       %@ = %@", badWord, res);
-                 
-                 if(![badWord isEqualToString:res]){
-                     continue;
-                 }
-                 
-                 _checkedGrammerString = [_checkedGrammerString stringByReplacingOccurrencesOfString:badWord withString:betterWord options:0 range:NSMakeRange(offset, length)];
-                 
-                 NSLog(@"       %@", _checkedGrammerString);
-                 
-                 // update offset
-                 int betterWordCount = (int)[betterWord length];
-                 int badWordCount = (int)[badWord length];
-                 int balanceOffset = betterWordCount - badWordCount;
-                 
-                 NSLog(@"balanceOffset : %d", balanceOffset);
-                 
-                 for (int j = i+1; j < [offsets count]; j++) {
-                     int oldOffset = [[offsets objectAtIndex:j] intValue];
-                     int newOffset = oldOffset + balanceOffset;
+                 for (int i = 0; i < [lawErrors count]; i++) {
                      
-                     NSLog(@"oldOffset : %d / new Offset : %d", oldOffset, newOffset);
+                     NSDictionary *error = [lawErrors objectAtIndex: i];
+                     NSString *targetWord = [error objectForKey:@"bad"];
                      
-                     [offsets replaceObjectAtIndex:j withObject:[NSNumber numberWithInteger:newOffset]];
+                     NSArray *componentsSeparatedByWhiteSpace = [targetWord componentsSeparatedByString:@" "];
+                     
+                     if([componentsSeparatedByWhiteSpace count] <= 1){
+                         [errors addObject:error];
+                     }
+                 }
+                 */
+                 
+                 NSLog(@"errors : %@", errors);
+                 
+                 NSDictionary *error = nil;
+                 int length = 0;
+                 int offset = 0;
+                 
+                 NSArray *betterWords = nil;
+                 NSString *betterWord = @"";
+                 NSString *badWord = @"";
+                 
+                 
+                 NSMutableArray *offsets = [NSMutableArray array];
+                 
+                 for (int i = 0; i < [errors count]; i++) {
+                     
+                     error = [errors objectAtIndex: i];
+                     
+                     offset = [[error objectForKey:@"offset"] intValue];
+                     [offsets addObject:[NSNumber numberWithInteger:offset]];
+                     
                  }
                  
-                 NSLog(@"NEW offsets : %@", offsets);
+                 NSLog(@"offsets : %@", offsets);
+                 
+                 NSMutableArray *resultWords = [NSMutableArray array];
+                 
+                 
+                 for (int i = 0; i < [errors count]; i++) {
+                     
+                     error = [errors objectAtIndex: i];
+                     
+                     badWord = [error objectForKey:@"bad"];
+                     length = [[error objectForKey:@"length"] intValue];
+                     
+                     // offset
+                     offset = [[offsets objectAtIndex:i] intValue];
+                     
+                     betterWords = [error objectForKey:@"better"];
+                     betterWord = [betterWords objectAtIndex: 0];
+                     
+                     [resultWords addObject:betterWord];
+                     
+                     NSLog(@"%d - bad : %@ / batter : %@ / length : %d / offset : %d", i, badWord, betterWord, length, offset);
+                     
+                     NSString *res = [_checkedGrammerString substringWithRange:NSMakeRange(offset, length)];
+                     NSLog(@"       %@ = %@", badWord, res);
+                     
+                     if(![badWord isEqualToString:res]){
+                         continue;
+                     }
+                     
+                     _checkedGrammerString = [_checkedGrammerString stringByReplacingOccurrencesOfString:badWord withString:betterWord options:0 range:NSMakeRange(offset, length)];
+                     
+                     NSLog(@"       %@", _checkedGrammerString);
+                     
+                     // update offset
+                     int betterWordCount = (int)[betterWord length];
+                     int badWordCount = (int)[badWord length];
+                     int balanceOffset = betterWordCount - badWordCount;
+                     
+                     NSLog(@"balanceOffset : %d", balanceOffset);
+                     
+                     for (int j = i+1; j < [offsets count]; j++) {
+                         int oldOffset = [[offsets objectAtIndex:j] intValue];
+                         int newOffset = oldOffset + balanceOffset;
+                         
+                         NSLog(@"oldOffset : %d / new Offset : %d", oldOffset, newOffset);
+                         
+                         [offsets replaceObjectAtIndex:j withObject:[NSNumber numberWithInteger:newOffset]];
+                     }
+                     
+                     NSLog(@"NEW offsets : %@", offsets);
+                 }
+                 
+                 NSMutableAttributedString *stringAttributed = [[NSMutableAttributedString alloc]initWithString:_checkedGrammerString];
+                 
+                 
+                 
+                 for (int i = 0; i < [resultWords count]; i++) {
+                     
+    //                 NSLog(@"resultWords : %@", resultWords);
+                     
+                     NSInteger length = [(NSString*)[resultWords objectAtIndex:i] length];
+                     
+                     // offset
+                     offset = [[offsets objectAtIndex:i] intValue];
+                     
+                     [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
+                     
+                     [stringAttributed addAttribute:NSBackgroundColorAttributeName value:[UIColor colorWithRed:60.0/255.0 green:136.0/255.0 blue:223.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
+                 }
+               
+                 NSLog(@"RESULT : %@", _checkedGrammerString);
+                 
+    //             NSString *checkedString = [NSString stringWithFormat:@"score : %d\n\n%@", score, _checkedGrammerString];
+    //             _textView.text = checkedString;
+                 
+                 
+                 NSInteger chekedGrammerStingLength = [_checkedGrammerString length];
+                 
+                 if(chekedGrammerStingLength >= _textLimitCount){
+                     chekedGrammerStingLength = _textLimitCount;
+                 }
+                 
+                [self updateLblTextLength:chekedGrammerStingLength];
+                 
+                 _textView.text = _checkedGrammerString;
+                 
+                 CGFloat fontSize = _textView.font.pointSize;
+                 UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
+                 [stringAttributed addAttribute:NSFontAttributeName value:textFont range:NSMakeRange(0, [_checkedGrammerString length])];
+                 [_textView setAttributedText:stringAttributed];
+                 
+                 _isUpdatedAfterCheck = NO;
+                 _imgCheckedGrammer.highlighted = YES;
+                 
+                 /*
+                 CGFloat fontSize = _textView.font.pointSize;
+                 //UIFont *textFont = [UIFont italicSystemFontOfSize:fontSize];
+                 UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue-Italic" size:fontSize];
+                 
+                 _textView.font = textFont;
+                 */
+                 
+                 // vibrate
+                 NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+                 if([defaults boolForKey:@"isVibrationAfterCheking"]){
+                        AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
+                 }
+                 
+                 [self decreaseCount:@"check"];
+                 
+                 //             NSLog(@"RESULT : %@", _checkedGrammerString);
+                 
+                 /*
+                  NSDictionary *jsonDict = (NSDictionary *) responseObject;
+                  NSArray *accounts = [jsonDict objectForKey:@"accounts"];
+                  
+                  NSDictionary *account = [accounts objectAtIndex: 0];
+                  
+                  NSString *accountName = [account objectForKey:@"accountName"];
+                  NSLog(@"accountName : %@", accountName);
+                  */
+                 [self hideInfoAlert];
+                 
+             }
+             @catch (NSException *e){
+                 [self hideInfoAlert];
+                 [self showAlertTempError];
+                 return;
              }
              
-             NSMutableAttributedString *stringAttributed = [[NSMutableAttributedString alloc]initWithString:_checkedGrammerString];
-             
-             
-             
-             for (int i = 0; i < [resultWords count]; i++) {
-                 
-//                 NSLog(@"resultWords : %@", resultWords);
-                 
-                 NSInteger length = [(NSString*)[resultWords objectAtIndex:i] length];
-                 
-                 // offset
-                 offset = [[offsets objectAtIndex:i] intValue];
-                 
-                 [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
-                 
-                 [stringAttributed addAttribute:NSBackgroundColorAttributeName value:[UIColor colorWithRed:60.0/255.0 green:136.0/255.0 blue:223.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
-             }
-           
-             
-             NSLog(@"RESULT : %@", _checkedGrammerString);
-             
-//             NSString *checkedString = [NSString stringWithFormat:@"score : %d\n\n%@", score, _checkedGrammerString];
-//             _textView.text = checkedString;
-             
-             
-             NSInteger chekedGrammerStingLength = [_checkedGrammerString length];
-             
-             if(chekedGrammerStingLength >= _textLimitCount){
-                 chekedGrammerStingLength = _textLimitCount;
-             }
-             
-            [self updateLblTextLength:chekedGrammerStingLength];
-             
-             _textView.text = _checkedGrammerString;
-             
-             CGFloat fontSize = _textView.font.pointSize;
-             UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
-             [stringAttributed addAttribute:NSFontAttributeName value:textFont range:NSMakeRange(0, [_checkedGrammerString length])];
-             [_textView setAttributedText:stringAttributed];
-
-             _isUpdatedAfterCheck = NO;
-             _imgCheckedGrammer.highlighted = YES;
-             
-             /*
-             CGFloat fontSize = _textView.font.pointSize;
-             //UIFont *textFont = [UIFont italicSystemFontOfSize:fontSize];
-             UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue-Italic" size:fontSize];
-             
-             _textView.font = textFont;
-             */
-             
-             // vibrate
-             NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
-             if([defaults boolForKey:@"isVibrationAfterCheking"]){
-                    AudioServicesPlaySystemSound(kSystemSoundID_Vibrate);
-             }
-             
-             [self decreaseCount:@"check"];
-             
-             //             NSLog(@"RESULT : %@", _checkedGrammerString);
-             
-             /*
-              NSDictionary *jsonDict = (NSDictionary *) responseObject;
-              NSArray *accounts = [jsonDict objectForKey:@"accounts"];
-              
-              NSDictionary *account = [accounts objectAtIndex: 0];
-              
-              NSString *accountName = [account objectForKey:@"accountName"];
-              NSLog(@"accountName : %@", accountName);
-              */
-             
-             [self hideInfoAlert];
              
          } failure:^(NSURLSessionTask *operation, NSError *error) {
-             NSLog(@"%@", error);
+            NSLog(@"%@", error);
              [self hideInfoAlert];
          }];
     
@@ -1043,6 +1096,13 @@ NSString *const kIsUpdateConfigKey = @"is_update";
                                                             NSLog(@"ERROR desc : %@", [error localizedDescription]);
                                                             
                                                             [self stopAudio:nil];
+                                                            
+                                                            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"Temporary failure",nil)
+                                                                                                            message:NSLocalizedString(@"Please use after a while.",nil)
+                                                                                                           delegate:self
+                                                                                                  cancelButtonTitle:NSLocalizedString(@"Done",nil) otherButtonTitles:nil];
+                                                            [alert show];
+
                                                         } else if (response) {
                                                             BOOL finished = NO;
                                                             NSLog(@"RESPONSE: %@", response);
@@ -1148,9 +1208,10 @@ NSString *const kIsUpdateConfigKey = @"is_update";
 
 - (Boolean) hasText : (NSString*) message {
     
-    
     // check text
-    if(![_textView hasText]){
+    NSString *text = [_textView.text stringByTrimmingCharactersInSet: [NSCharacterSet whitespaceCharacterSet]];
+    
+    if(![_textView hasText] || [text isEqualToString:@""] ){
         NSLog(@"no text");
         
         UIAlertView *alert = [[UIAlertView alloc] initWithTitle:NSLocalizedString(@"No sentences",nil)
@@ -1259,20 +1320,6 @@ NSString *const kIsUpdateConfigKey = @"is_update";
         [_task cancel];
     }
 
-}
-
-
--(void)tabBar:(UITabBar *)tabBar didSelectItem:(UITabBarItem *)item
-{
-    if(item.tag==1)
-    {
-        NSLog(@"show setting");
-        [self performSegueWithIdentifier:@"showSetting" sender:nil];
-    }
-    else
-    {
-        NSLog(@"show home");
-    }
 }
 
 - (void) showUpdateAlert {
