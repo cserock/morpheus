@@ -215,41 +215,71 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     
     _ref = [[FIRDatabase database] reference];
     
-    FIRDatabaseQuery *userLimitQuery = [[[_ref child:@"user_limit"] child:_uid] child:_todayString];
     
-    [userLimitQuery observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
-        // Get user value
-        NSDictionary *user_limit = snapshot.value;
+    NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
+    Boolean isNotFirstRun = [defaults boolForKey:@"isNotFirstRun"];
+    
+    
+    
+    if(isNotFirstRun){
         
-        NSLog(@"checkCount : %@", user_limit);
+        FIRDatabaseQuery *userLimitQuery = [[[_ref child:@"user_limit"] child:_uid] child:_todayString];
         
-        if(user_limit == (NSDictionary*) [NSNull null]){
-            // delete rows not today
-            [[[_ref child:@"user_limit"] child:_uid] removeValue];
+        [userLimitQuery observeEventType:FIRDataEventTypeValue withBlock:^(FIRDataSnapshot * _Nonnull snapshot) {
+            // Get user value
+            NSDictionary *user_limit = snapshot.value;
             
-            // set today
-            [[[[_ref child:@"user_limit"] child:_uid] child:_todayString] setValue:@{@"listen_count": [NSString stringWithFormat:@"%d", _dailyFreeListenItem], @"check_count": [NSString stringWithFormat:@"%d", _dailyFreeCheckItem]}];
-        } else {
+            NSLog(@"checkCount : %@", user_limit);
             
-            _limitListenCount = [[user_limit objectForKey:@"listen_count"] intValue];
-            _limitCheckCount = [[user_limit objectForKey:@"check_count"] intValue];
+//            _uid = @"test";
             
-            NSLog(@"Listen count : %d, Check count : %d", _limitListenCount, _limitCheckCount);
-        }
+            if(user_limit == (NSDictionary*) [NSNull null]){
+                // delete rows not today
+                [[[_ref child:@"user_limit"] child:_uid] removeValue];
+                
+                // set today
+                [[[[_ref child:@"user_limit"] child:_uid] child:_todayString] setValue:@{@"listen_count": [NSString stringWithFormat:@"%d", _dailyFreeListenItem], @"check_count": [NSString stringWithFormat:@"%d", _dailyFreeCheckItem]}];
+            } else {
+                
+                _limitListenCount = [[user_limit objectForKey:@"listen_count"] intValue];
+                _limitCheckCount = [[user_limit objectForKey:@"check_count"] intValue];
+                
+                NSLog(@"Listen count : %d, Check count : %d", _limitListenCount, _limitCheckCount);
+            }
+            
+            [self updateButtonBadge];
+            
+            [_spinner stopAnimating];
+            _dimmedView.hidden = YES;
+            
+            // ...
+        } withCancelBlock:^(NSError * _Nonnull error) {
+            NSLog(@"%@", error.localizedDescription);
+            
+            [_spinner stopAnimating];
+            _dimmedView.hidden = YES;
+            [self showAlertTempError];
+        }];
+        
+    } else {
+    
+        NSLog(@"isNotFirstRun : %d", isNotFirstRun);
+        
+        // set today
+        [[[[_ref child:@"user_limit"] child:_uid] child:_todayString] setValue:@{@"listen_count": [NSString stringWithFormat:@"%d", _dailyFreeListenItem], @"check_count": [NSString stringWithFormat:@"%d", _dailyFreeCheckItem]}];
+    
+        _limitListenCount = _dailyFreeListenItem;
+        _limitCheckCount = _dailyFreeCheckItem;
         
         [self updateButtonBadge];
         
         [_spinner stopAnimating];
         _dimmedView.hidden = YES;
         
-        // ...
-    } withCancelBlock:^(NSError * _Nonnull error) {
-        NSLog(@"%@", error.localizedDescription);
+        [defaults setBool:YES forKey:@"isNotFirstRun"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
         
-        [_spinner stopAnimating];
-        _dimmedView.hidden = YES;
-        [self showAlertTempError];
-    }];
+    }
 }
 
 - (void) showAd {
