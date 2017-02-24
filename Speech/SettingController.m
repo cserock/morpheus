@@ -84,6 +84,7 @@
 
 - (void)viewWillDisappear:(BOOL)animated {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+    [_spinner stopAnimating];
 }
 
 - (void)productPurchased:(NSNotification *)notification {
