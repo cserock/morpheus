@@ -48,6 +48,11 @@
 #define IS_PAID NO
 #define ITEM_1_ID @"me.neosave.morpheus.item01"
 
+#define COMPLETE_SAY 1
+#define COMPLETE_CHECK_GRAMMER 2
+#define COMPLETE_LISTEN 3
+#define COMPLETE_SEND 4
+
 @interface HomeController () <AudioControllerDelegate, UITextViewDelegate, UIAlertViewDelegate, AVSpeechSynthesizerDelegate>
 @property (weak, nonatomic) IBOutlet UIButton *btnRecordAudio;
 @property (weak, nonatomic) IBOutlet UIButton *btnCheckGrammer;
@@ -200,7 +205,58 @@ NSString *const kIsUpdateConfigKey = @"is_update";
 
 - (void)interstitialDidDismissScreen:(GADInterstitial *)interstitial {
     self.interstitial = [self createAndLoadInterstitial];
+    
+    int rand = arc4random_uniform(100);
+    NSLog(@"ad protage : %d, rand : %d", _adProtage, rand);
+    if(rand > (100 - _adProtage)){
+        [self showAlertForUpgrade];
+    }
 }
+
+
+- (void) showAlertForUpgrade {
+    UIAlertController * alert=   [UIAlertController
+                                  alertControllerWithTitle:NSLocalizedString(@"Upgrade",nil)
+                                  message:NSLocalizedString(@"Please buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads",nil)
+                                  preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction* cancel = [UIAlertAction
+                             actionWithTitle:NSLocalizedString(@"Later",nil)
+                             style:UIAlertActionStyleDefault
+                             handler:^(UIAlertAction * action)
+                             {
+                                 [alert dismissViewControllerAnimated:YES completion:nil];
+                             }];
+    UIAlertAction* ok = [UIAlertAction
+                         actionWithTitle:NSLocalizedString(@"Buy",nil)
+                         style:UIAlertActionStyleDefault
+                         handler:^(UIAlertAction * action)
+                         {
+                             [alert dismissViewControllerAnimated:YES completion:nil];
+                             
+                             NSLog(@"UPGRADE!");
+                             
+                             if ([SKPaymentQueue canMakePayments]) {
+                                 [_spinner startAnimating];
+                                 _isPurchasing = YES;
+                                 
+                                 [FIRAnalytics logEventWithName:kFIREventSelectContent parameters:@{
+                                                                                                    kFIRParameterContentType:@"home",
+                                                                                                    kFIRParameterItemID:@"alert_buy"
+                                                                                                    }];
+                                 
+                                 [[InAppPurchase sharedManager] paymentRequestWithProductIdentifiers:[[NSArray alloc]initWithObjects:ITEM_1_ID, nil]];
+                             } else {
+                                 [self alertPaymentError];
+                             }
+                             
+                         }];
+    [alert addAction:cancel];
+    [alert addAction:ok];
+    
+    
+    [self presentViewController:alert animated:YES completion:nil];
+}
+
 
 - (void) initUserLimit {
     
@@ -284,20 +340,21 @@ NSString *const kIsUpdateConfigKey = @"is_update";
 
 - (void) showAd {
     
-    int rand = arc4random_uniform(100);
-    NSLog(@"ad protage : %d, rand : %d", _adProtage, rand);
-    
-    if(rand > (100 - _adProtage)){
+    if (self.interstitial.isReady) {
+        int rand = arc4random_uniform(100);
+        NSLog(@"ad protage : %d, rand : %d", _adProtage, rand);
         
-        [self.interstitial presentFromRootViewController:self];
-        
-        // ad
-        [FIRAnalytics logEventWithName:kFIREventViewItem parameters:@{
-                                                                      kFIRParameterContentType:@"home",
-                                                                      kFIRParameterItemID:@"ad"
-                                                                      }];
+        if(rand > (100 - _adProtage)){
+            
+            [self.interstitial presentFromRootViewController:self];
+            
+            // ad
+            [FIRAnalytics logEventWithName:kFIREventViewItem parameters:@{
+                                                                          kFIRParameterContentType:@"home",
+                                                                          kFIRParameterItemID:@"ad"
+                                                                          }];
+        }
     }
-    
 }
 
 - (void) updateButtonBadge {
@@ -655,8 +712,6 @@ NSString *const kIsUpdateConfigKey = @"is_update";
         
         if (nowCount == 0)
         {
-            
-            
             UIAlertController * alert=   [UIAlertController
                                           alertControllerWithTitle:NSLocalizedString(@"Upgrade",nil)
                                           message:NSLocalizedString(@"You've spent today's free quota.\nPlease buy upgrade pack and use continue.\n\nUnlimit uses by a day\nSupport 2,048 chars\nNo Ads",nil)
@@ -1077,6 +1132,8 @@ NSString *const kIsUpdateConfigKey = @"is_update";
                   */
                  [self hideInfoAlert];
                  
+                 [self showAlertForComplete:COMPLETE_CHECK_GRAMMER];
+                 
              }
              @catch (NSException *e){
                  [self hideInfoAlert];
@@ -1176,6 +1233,7 @@ NSString *const kIsUpdateConfigKey = @"is_update";
                                                             if (finished) {
                                                                 [self decreaseCount:@"listen"];
                                                                 [self stopAudio:nil];
+                                                                [self showAlertForComplete:COMPLETE_SAY];
                                                             }
                                                         }
                                                     }
@@ -1233,7 +1291,94 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     
     activityVC.excludedActivityTypes = excludeActivities;
     
-    [self presentViewController:activityVC animated:YES completion:nil];
+    
+    //if iPhone
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        [self presentViewController:activityVC animated:YES completion:nil];
+    }
+    //if iPad
+    else {
+        // Change Rect to position Popover
+        UIPopoverController *popup = [[UIPopoverController alloc] initWithContentViewController:activityVC];
+        [popup presentPopoverFromRect:CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/4, 0, 0)inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    }
+    
+    activityVC.completionWithItemsHandler = ^(NSString *activityType,
+                                              BOOL completed,
+                                              NSArray *returnedItems,
+                                              NSError *error){
+        // react to the completion
+        if (completed) {
+            
+            // user shared an item
+            NSLog(@"We used activity type%@", activityType);
+            
+            [self showAlertForComplete:COMPLETE_SEND];
+            
+        } else {
+            
+            // user cancelled
+            NSLog(@"We didn't want to share anything after all.");
+            
+            if (self.interstitial.isReady) {
+                
+                if(!_isPaid){
+                    NSLog(@"Show Ad");
+                    [self.interstitial presentFromRootViewController:self];
+                }
+                
+            } else {
+                NSLog(@"Ad wasn't ready");
+            }
+        }
+        
+        if (error) {
+            NSLog(@"An Error occured: %@, %@", error.localizedDescription, error.localizedFailureReason);
+        }
+        
+        
+    };
+}
+
+
+- (void) showAlertForComplete : (int) completeMode {
+    
+    NSString *message = NSLocalizedString(@"Sentence sent.",nil);
+    
+    if(completeMode == COMPLETE_SAY){
+        message = NSLocalizedString(@"Listening is completed.",nil);
+    } else if(completeMode == COMPLETE_CHECK_GRAMMER){
+        message = NSLocalizedString(@"Grammer check is done.",nil);
+    }
+    
+    UIAlertController * alert =   [UIAlertController
+                                   alertControllerWithTitle:NSLocalizedString(@"Complete",nil)
+                                   message:message
+                                   preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction* confirm = [UIAlertAction
+                              actionWithTitle:NSLocalizedString(@"Confirm",nil)
+                              style:UIAlertActionStyleDefault
+                              handler:^(UIAlertAction * action)
+                              {
+                                  [alert dismissViewControllerAnimated:YES completion:nil];
+                                  
+                                  if (self.interstitial.isReady) {
+                                      
+                                      if(!_isPaid){
+                                          NSLog(@"Show Ad");
+                                          [self.interstitial presentFromRootViewController:self];
+                                      }
+                                      
+                                  } else {
+                                      NSLog(@"Ad wasn't ready");
+                                  }
+                                  
+                              }];
+    
+    [alert addAction:confirm];
+    
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (Boolean) hasText : (NSString*) message {
