@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "!ProtoCompiler-gRPCPlugin": [
-      "~> 1.0.0-pre1.1"
+      "~> 1.0"
     ]
   },
   "prepare_command": "Pods/!ProtoCompiler/protoc         --plugin=protoc-gen-grpc=Pods/!ProtoCompiler-gRPCPlugin/grpc_objective_c_plugin         --objc_out=.         --grpc_out=.         -I .         -I Pods/!ProtoCompiler         google/*/*.proto google/*/*/*/*.proto",

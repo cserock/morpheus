@@ -18,6 +18,7 @@
 #import <MessageUI/MessageUI.h>
 #include <sys/sysctl.h>
 #import "InAppPurchase.h"
+#import "UIColor+MyApp.h"
 
 @import Firebase;
 
@@ -138,12 +139,13 @@
     }
 }
 
-
 - (void)viewDidLoad {
     [super viewDidLoad];
     
     NSLog(@"SettingController viewDidLoad");
     _settingTableView.delegate = self;
+    
+    _settingTableView.backgroundColor = [UIColor setMySettingBackgroundColor];
     
     // Initialize picker view
     _regionPickerView = [[UIPickerView alloc] init];
@@ -309,7 +311,16 @@
     
     activityVC.excludedActivityTypes = excludeActivities;
     
-    [self presentViewController:activityVC animated:YES completion:nil];
+    //if iPhone
+    if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone) {
+        [self presentViewController:activityVC animated:YES completion:nil];
+    }
+    //if iPad
+    else {
+        // Change Rect to position Popover
+        UIPopoverController *popup = [[UIPopoverController alloc] initWithContentViewController:activityVC];
+        [popup presentPopoverFromRect:CGRectMake(self.view.frame.size.width/2, self.view.frame.size.height/4, 0, 0)inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    }
 }
 
 - (void) alertPaymentError {
@@ -402,7 +413,7 @@
         NSString *emailSubject = [NSString stringWithFormat:@"[%@] %@", [[[NSBundle mainBundle] localizedInfoDictionary] objectForKey:@"CFBundleDisplayName"], NSLocalizedString(@"Support & Feedback",nil)];
         NSString *emailBody = [NSString stringWithFormat:@"\n\n------------\n%@\n- App Version : %@\n- Device : %@\n- OS : %@\n- UID : %@", NSLocalizedString(@"don't delete following information for supporting.",nil), appVersion, deviceName, systemVersion, [FIRAuth auth].currentUser.uid];
         
-        [composeViewController setToRecipients:@[@"help@neosave.me"]];
+        [composeViewController setToRecipients:@[@"cserock@gmail.com"]];
         [composeViewController setSubject:emailSubject];
         [composeViewController setMessageBody:emailBody isHTML:NO];
         

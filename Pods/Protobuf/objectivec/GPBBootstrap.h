@@ -62,7 +62,11 @@
  *
  * ```
  * GPB_ENUM_FWD_DECLARE(Foo_Enum)
- * @property (nonatomic) Foo_Enum value;
+ *
+ * @interface BarClass : NSObject
+ * @property (nonatomic) enum Foo_Enum value;
+ * - (void)bazMethod:(enum Foo_Enum):value;
+ * @end
  * ```
  **/
 #define GPB_ENUM_FWD_DECLARE(X) enum X : int32_t
@@ -84,6 +88,24 @@
 #define GPB_UNSAFE_UNRETAINED __unsafe_unretained
 #else
 #define GPB_UNSAFE_UNRETAINED
+#endif
+#endif
+
+/**
+ * Attribute used for Objective-C proto interface deprecations without messages.
+ **/
+#ifndef GPB_DEPRECATED
+#define GPB_DEPRECATED __attribute__((deprecated))
+#endif
+
+/**
+ * Attribute used for Objective-C proto interface deprecations with messages.
+ **/
+#ifndef GPB_DEPRECATED_MSG
+#if __has_extension(attribute_deprecated_with_message)
+#define GPB_DEPRECATED_MSG(msg) __attribute__((deprecated(msg)))
+#else
+#define GPB_DEPRECATED_MSG(msg) __attribute__((deprecated))
 #endif
 #endif
 

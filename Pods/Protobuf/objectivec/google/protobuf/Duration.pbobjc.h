@@ -8,9 +8,13 @@
 #endif
 
 #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
- #import <Protobuf/GPBProtocolBuffers.h>
+ #import <protobuf/GPBDescriptor.h>
+ #import <protobuf/GPBMessage.h>
+ #import <protobuf/GPBRootObject.h>
 #else
- #import "GPBProtocolBuffers.h"
+ #import "GPBDescriptor.h"
+ #import "GPBMessage.h"
+ #import "GPBRootObject.h"
 #endif
 
 #if GOOGLE_PROTOBUF_OBJC_VERSION < 30002
@@ -59,6 +63,8 @@ typedef GPB_ENUM(GPBDuration_FieldNumber) {
  * two Timestamp values is a Duration and it can be added or subtracted
  * from a Timestamp. Range is approximately +-10,000 years.
  *
+ * # Examples
+ *
  * Example 1: Compute Duration from two Timestamps in pseudo code.
  *
  *     Timestamp start = ...;
@@ -71,7 +77,7 @@ typedef GPB_ENUM(GPBDuration_FieldNumber) {
  *     if (duration.seconds < 0 && duration.nanos > 0) {
  *       duration.seconds += 1;
  *       duration.nanos -= 1000000000;
- *     } else if (durations.seconds > 0 && duration.nanos < 0) {
+ *     } else if (duration.seconds > 0 && duration.nanos < 0) {
  *       duration.seconds -= 1;
  *       duration.nanos += 1000000000;
  *     }
@@ -98,12 +104,23 @@ typedef GPB_ENUM(GPBDuration_FieldNumber) {
  *     td = datetime.timedelta(days=3, minutes=10)
  *     duration = Duration()
  *     duration.FromTimedelta(td)
+ *
+ * # JSON Mapping
+ *
+ * In JSON format, the Duration type is encoded as a string rather than an
+ * object, where the string ends in the suffix "s" (indicating seconds) and
+ * is preceded by the number of seconds, with nanoseconds expressed as
+ * fractional seconds. For example, 3 seconds with 0 nanoseconds should be
+ * encoded in JSON format as "3s", while 3 seconds and 1 nanosecond should
+ * be expressed in JSON format as "3.000000001s", and 3 seconds and 1
+ * microsecond should be expressed in JSON format as "3.000001s".
  **/
 @interface GPBDuration : GPBMessage
 
 /**
  * Signed seconds of the span of time. Must be from -315,576,000,000
- * to +315,576,000,000 inclusive.
+ * to +315,576,000,000 inclusive. Note: these bounds are computed from:
+ * 60 sec/min * 60 min/hr * 24 hr/day * 365.25 days/year * 10000 years
  **/
 @property(nonatomic, readwrite) int64_t seconds;
 

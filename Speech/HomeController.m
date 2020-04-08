@@ -20,7 +20,7 @@
 #import "HomeController.h"
 #import "AudioController.h"
 #import "SpeechRecognitionService.h"
-#import "google/cloud/speech/v1beta1/CloudSpeech.pbrpc.h"
+#import "google/cloud/speech/v1/CloudSpeech.pbrpc.h"
 #import "Reachability.h"
 
 #import <AFNetworking/AFNetworking.h>
@@ -28,6 +28,7 @@
 #import "AppDelegate.h"
 #import "UIButton+Badge.h"
 #import "InAppPurchase.h"
+#import "UIColor+MyApp.h"
 
 @import Firebase;
 @import GoogleMobileAds;
@@ -373,7 +374,7 @@ NSString *const kIsUpdateConfigKey = @"is_update";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
+        
     [self checkReachability];
     
     _dimmedView.hidden = NO;
@@ -415,9 +416,11 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     _uid = @"";
     
     [[FIRAuth auth]
-     signInAnonymouslyWithCompletion:^(FIRUser *_Nullable user, NSError *_Nullable error) {
+     signInAnonymouslyWithCompletion:^(FIRAuthDataResult * _Nullable authResult,
+     NSError * _Nullable error) {
          // ...
-         _uid = user.uid;
+        FIRUser *user = authResult.user;
+        _uid = user.uid;
          NSLog(@"signInAnonymouslyWithCompletion uid : @%@", user.uid);
          
          [self fetchConfig];
@@ -440,14 +443,16 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     // init engish region code
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     _englishRegionCode = [defaults objectForKey:@"englishRegionCode"];
-    NSLog(@"englishRegionCode : @%@", _englishRegionCode);
     
     if(_englishRegionCode == nil){
+        _englishRegionCode = DEFAULT_ENGLISH_REGION;
         [defaults setObject:DEFAULT_ENGLISH_REGION forKey:@"englishRegionCode"];
         [defaults setBool:YES forKey:@"isVibrationAfterListening"];
         [defaults setBool:YES forKey:@"isVibrationAfterCheking"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
+    
+    NSLog(@"englishRegionCode : @%@", _englishRegionCode);
     
     // is purchasing
     _isPurchasing = NO;
@@ -1019,7 +1024,7 @@ NSString *const kIsUpdateConfigKey = @"is_update";
                      // offset
                      offset = [[offsets objectAtIndex:i] intValue];
                      
-                     [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRed:255.0/255.0 green:255.0/255.0 blue:255.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
+                     [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor setMyBackgroundColor] range:NSMakeRange(offset, length)];
                      
                      [stringAttributed addAttribute:NSBackgroundColorAttributeName value:[UIColor colorWithRed:60.0/255.0 green:136.0/255.0 blue:223.0/255.0 alpha:1.0] range:NSMakeRange(offset, length)];
                  }
@@ -1043,6 +1048,7 @@ NSString *const kIsUpdateConfigKey = @"is_update";
                  CGFloat fontSize = _textView.font.pointSize;
                  UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
                  [stringAttributed addAttribute:NSFontAttributeName value:textFont range:NSMakeRange(0, [_checkedGrammerString length])];
+                 [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor setMyForegroundColor] range:NSMakeRange(0, [_checkedGrammerString length])];
                  [_textView setAttributedText:stringAttributed];
                  
                  _isUpdatedAfterCheck = NO;
@@ -1265,6 +1271,7 @@ NSString *const kIsUpdateConfigKey = @"is_update";
     CGFloat fontSize = _textView.font.pointSize;
     UIFont *textFont = [UIFont fontWithName:@"HelveticaNeue" size:fontSize];
     [stringAttributed addAttribute:NSFontAttributeName value:textFont range:NSMakeRange(0, [_textView.text length])];
+    [stringAttributed addAttribute:NSForegroundColorAttributeName value:[UIColor setMyForegroundColor] range:NSMakeRange(0, [_textView.text length])];
     [stringAttributed addAttribute:NSBackgroundColorAttributeName value:[UIColor clearColor] range:NSMakeRange(0, [_textView.text length])];
     [_textView setAttributedText:stringAttributed];
     

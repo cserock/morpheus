@@ -8,22 +8,14 @@
 #endif
 
 #if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
- #import <Protobuf/GPBProtocolBuffers_RuntimeSupport.h>
+ #import <protobuf/GPBProtocolBuffers_RuntimeSupport.h>
 #else
  #import "GPBProtocolBuffers_RuntimeSupport.h"
 #endif
 
-#if GPB_USE_PROTOBUF_FRAMEWORK_IMPORTS
- #import <Protobuf/Any.pbobjc.h>
- #import <Protobuf/Empty.pbobjc.h>
-#else
- #import "google/protobuf/Any.pbobjc.h"
- #import "google/protobuf/Empty.pbobjc.h"
-#endif
-
- #import "google/longrunning/Operations.pbobjc.h"
- #import "google/api/Annotations.pbobjc.h"
- #import "google/rpc/Status.pbobjc.h"
+#import "google/longrunning/Operations.pbobjc.h"
+#import "google/api/Annotations.pbobjc.h"
+#import "google/rpc/Status.pbobjc.h"
 // @@protoc_insertion_point(imports)
 
 #pragma clang diagnostic push
@@ -39,12 +31,10 @@
   // about thread safety and initialization of registry.
   static GPBExtensionRegistry* registry = nil;
   if (!registry) {
-    GPBDebugCheckRuntimeVersion();
+    GPB_DEBUG_CHECK_RUNTIME_VERSIONS();
     registry = [[GPBExtensionRegistry alloc] init];
+    // Merge in the imports (direct or indirect) that defined extensions.
     [registry addExtensions:[AnnotationsRoot extensionRegistry]];
-    [registry addExtensions:[GPBAnyRoot extensionRegistry]];
-    [registry addExtensions:[GPBEmptyRoot extensionRegistry]];
-    [registry addExtensions:[StatusRoot extensionRegistry]];
   }
   return registry;
 }
@@ -58,7 +48,7 @@ static GPBFileDescriptor *OperationsRoot_FileDescriptor(void) {
   // about thread safety of the singleton.
   static GPBFileDescriptor *descriptor = NULL;
   if (!descriptor) {
-    GPBDebugCheckRuntimeVersion();
+    GPB_DEBUG_CHECK_RUNTIME_VERSIONS();
     descriptor = [[GPBFileDescriptor alloc] initWithPackage:@"google.longrunning"
                                                      syntax:GPBFileSyntaxProto3];
   }
@@ -143,14 +133,16 @@ typedef struct Operation__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(Operation__storage_)
-                                         flags:0];
+                                         flags:GPBDescriptorInitializationFlag_None];
     static const char *oneofs[] = {
       "result",
     };
     [localDescriptor setupOneofs:oneofs
                            count:(uint32_t)(sizeof(oneofs) / sizeof(char*))
                    firstHasIndex:-1];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -197,8 +189,10 @@ typedef struct GetOperationRequest__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(GetOperationRequest__storage_)
-                                         flags:0];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+                                         flags:GPBDescriptorInitializationFlag_None];
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -273,8 +267,10 @@ typedef struct ListOperationsRequest__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(ListOperationsRequest__storage_)
-                                         flags:0];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+                                         flags:GPBDescriptorInitializationFlag_None];
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -327,8 +323,10 @@ typedef struct ListOperationsResponse__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(ListOperationsResponse__storage_)
-                                         flags:0];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+                                         flags:GPBDescriptorInitializationFlag_None];
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -370,8 +368,10 @@ typedef struct CancelOperationRequest__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(CancelOperationRequest__storage_)
-                                         flags:0];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+                                         flags:GPBDescriptorInitializationFlag_None];
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;
@@ -413,8 +413,10 @@ typedef struct DeleteOperationRequest__storage_ {
                                         fields:fields
                                     fieldCount:(uint32_t)(sizeof(fields) / sizeof(GPBMessageFieldDescription))
                                    storageSize:sizeof(DeleteOperationRequest__storage_)
-                                         flags:0];
-    NSAssert(descriptor == nil, @"Startup recursed!");
+                                         flags:GPBDescriptorInitializationFlag_None];
+    #if defined(DEBUG) && DEBUG
+      NSAssert(descriptor == nil, @"Startup recursed!");
+    #endif  // DEBUG
     descriptor = localDescriptor;
   }
   return descriptor;

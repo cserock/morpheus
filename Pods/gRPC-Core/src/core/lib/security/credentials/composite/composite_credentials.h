@@ -1,72 +1,103 @@
 /*
  *
- * Copyright 2015, Google Inc.
- * All rights reserved.
+ * Copyright 2015 gRPC authors.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
 #ifndef GRPC_CORE_LIB_SECURITY_CREDENTIALS_COMPOSITE_COMPOSITE_CREDENTIALS_H
 #define GRPC_CORE_LIB_SECURITY_CREDENTIALS_COMPOSITE_COMPOSITE_CREDENTIALS_H
 
+#include <grpc/support/port_platform.h>
+
+#include "src/core/lib/gprpp/inlined_vector.h"
+#include "src/core/lib/gprpp/ref_counted_ptr.h"
 #include "src/core/lib/security/credentials/credentials.h"
 
-typedef struct {
-  grpc_call_credentials **creds_array;
-  size_t num_creds;
-} grpc_call_credentials_array;
+/* -- Composite channel credentials. -- */
 
-const grpc_call_credentials_array *
-grpc_composite_call_credentials_get_credentials(
-    grpc_call_credentials *composite_creds);
+class grpc_composite_channel_credentials : public grpc_channel_credentials {
+ public:
+  grpc_composite_channel_credentials(
+      grpc_core::RefCountedPtr<grpc_channel_credentials> channel_creds,
+      grpc_core::RefCountedPtr<grpc_call_credentials> call_creds)
+      : grpc_channel_credentials(channel_creds->type()),
+        inner_creds_(std::move(channel_creds)),
+        call_creds_(std::move(call_creds)) {}
 
-/* Returns creds if creds is of the specified type or the inner creds of the
-   specified type (if found), if the creds is of type COMPOSITE.
-   If composite_creds is not NULL, *composite_creds will point to creds if of
-   type COMPOSITE in case of success. */
-grpc_call_credentials *grpc_credentials_contains_type(
-    grpc_call_credentials *creds, const char *type,
-    grpc_call_credentials **composite_creds);
+  ~grpc_composite_channel_credentials() override = default;
 
-/* -- Channel composite credentials. -- */
+  grpc_core::RefCountedPtr<grpc_channel_credentials>
+  duplicate_without_call_credentials() override {
+    return inner_creds_;
+  }
 
-typedef struct {
-  grpc_channel_credentials base;
-  grpc_channel_credentials *inner_creds;
-  grpc_call_credentials *call_creds;
-} grpc_composite_channel_credentials;
+  grpc_core::RefCountedPtr<grpc_channel_security_connector>
+  create_security_connector(
+      grpc_core::RefCountedPtr<grpc_call_credentials> call_creds,
+      const char* target, const grpc_channel_args* args,
+      grpc_channel_args** new_args) override;
 
-/* -- Composite credentials. -- */
+  grpc_channel_args* update_arguments(grpc_channel_args* args) override {
+    return inner_creds_->update_arguments(args);
+  }
 
-typedef struct {
-  grpc_call_credentials base;
-  grpc_call_credentials_array inner;
-} grpc_composite_call_credentials;
+  const grpc_channel_credentials* inner_creds() const {
+    return inner_creds_.get();
+  }
+  const grpc_call_credentials* call_creds() const { return call_creds_.get(); }
+  grpc_call_credentials* mutable_call_creds() { return call_creds_.get(); }
+
+ private:
+  grpc_core::RefCountedPtr<grpc_channel_credentials> inner_creds_;
+  grpc_core::RefCountedPtr<grpc_call_credentials> call_creds_;
+};
+
+/* -- Composite call credentials. -- */
+
+class grpc_composite_call_credentials : public grpc_call_credentials {
+ public:
+  using CallCredentialsList =
+      grpc_core::InlinedVector<grpc_core::RefCountedPtr<grpc_call_credentials>,
+                               2>;
+
+  grpc_composite_call_credentials(
+      grpc_core::RefCountedPtr<grpc_call_credentials> creds1,
+      grpc_core::RefCountedPtr<grpc_call_credentials> creds2);
+  ~grpc_composite_call_credentials() override = default;
+
+  bool get_request_metadata(grpc_polling_entity* pollent,
+                            grpc_auth_metadata_context context,
+                            grpc_credentials_mdelem_array* md_array,
+                            grpc_closure* on_request_metadata,
+                            grpc_error** error) override;
+
+  void cancel_get_request_metadata(grpc_credentials_mdelem_array* md_array,
+                                   grpc_error* error) override;
+
+  grpc_security_level min_security_level() const override {
+    return min_security_level_;
+  }
+
+  const CallCredentialsList& inner() const { return inner_; }
+
+ private:
+  void push_to_inner(grpc_core::RefCountedPtr<grpc_call_credentials> creds,
+                     bool is_composite);
+  grpc_security_level min_security_level_;
+  CallCredentialsList inner_;
+};
 
 #endif /* GRPC_CORE_LIB_SECURITY_CREDENTIALS_COMPOSITE_COMPOSITE_CREDENTIALS_H \
-          */
+        */

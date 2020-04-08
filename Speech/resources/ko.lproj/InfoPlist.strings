@@ -9,3 +9,4 @@
 CFBundleDisplayName = "모피어스";
 CFBundleName = "모피어스";
 UILaunchStoryboardName = "LaunchScreenKo";
+NSMicrophoneUsageDescription = "모피어스는 음성을 텍스트로 변환하기 위해 마이크를 사용합니다.";

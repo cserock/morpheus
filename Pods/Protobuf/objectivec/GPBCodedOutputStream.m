@@ -36,6 +36,11 @@
 #import "GPBUnknownFieldSet_PackagePrivate.h"
 #import "GPBUtilities_PackagePrivate.h"
 
+// These values are the existing values so as not to break any code that might
+// have already been inspecting them when they weren't documented/exposed.
+NSString *const GPBCodedOutputStreamException_OutOfSpace = @"OutOfSpace";
+NSString *const GPBCodedOutputStreamException_WriteFailed = @"WriteFailed";
+
 // Structure for containing state of a GPBCodedInputStream. Brought out into
 // a struct so that we can inline several common functions instead of dealing
 // with overhead of ObjC dispatch.
@@ -59,13 +64,13 @@ static const int32_t LITTLE_ENDIAN_64_SIZE = sizeof(uint64_t);
 static void GPBRefreshBuffer(GPBOutputBufferState *state) {
   if (state->output == nil) {
     // We're writing to a single buffer.
-    [NSException raise:@"OutOfSpace" format:@""];
+    [NSException raise:GPBCodedOutputStreamException_OutOfSpace format:@""];
   }
   if (state->position != 0) {
     NSInteger written =
         [state->output write:state->bytes maxLength:state->position];
     if (written != (NSInteger)state->position) {
-      [NSException raise:@"WriteFailed" format:@""];
+      [NSException raise:GPBCodedOutputStreamException_WriteFailed format:@""];
     }
     state->position = 0;
   }
@@ -169,10 +174,10 @@ static void GPBWriteRawLittleEndian64(GPBOutputBufferState *state,
                                 data:(NSMutableData *)data {
   if ((self = [super init])) {
     buffer_ = [data retain];
-    [output open];
     state_.bytes = [data mutableBytes];
     state_.size = [data length];
     state_.output = [output retain];
+    [state_.output open];
   }
   return self;
 }
@@ -369,12 +374,12 @@ static void GPBWriteRawLittleEndian64(GPBOutputBufferState *state,
 }
 
 - (void)writeEnumNoTag:(int32_t)value {
-  GPBWriteRawVarint32(&state_, value);
+  GPBWriteInt32NoTag(&state_, value);
 }
 
 - (void)writeEnum:(int32_t)fieldNumber value:(int32_t)value {
   GPBWriteTagWithFormat(&state_, fieldNumber, GPBWireFormatVarint);
-  GPBWriteRawVarint32(&state_, value);
+  GPBWriteInt32NoTag(&state_, value);
 }
 
 - (void)writeSFixed32NoTag:(int32_t)value {
@@ -937,7 +942,10 @@ static void GPBWriteRawLittleEndian64(GPBOutputBufferState *state,
       state_.position = length;
     } else {
       // Write is very big.  Let's do it all at once.
-      [state_.output write:((uint8_t *)value) + offset maxLength:length];
+      NSInteger written = [state_.output write:((uint8_t *)value) + offset maxLength:length];
+      if (written != (NSInteger)length) {
+        [NSException raise:GPBCodedOutputStreamException_WriteFailed format:@""];
+      }
     }
   }
 }
@@ -1045,7 +1053,7 @@ size_t GPBComputeUInt32SizeNoTag(int32_t value) {
 }
 
 size_t GPBComputeEnumSizeNoTag(int32_t value) {
-  return GPBComputeRawVarint32Size(value);
+  return GPBComputeInt32SizeNoTag(value);
 }
 
 size_t GPBComputeSFixed32SizeNoTag(int32_t value) {

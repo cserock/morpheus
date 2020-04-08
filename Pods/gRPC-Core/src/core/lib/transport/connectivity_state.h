@@ -1,88 +1,129 @@
 /*
  *
- * Copyright 2015, Google Inc.
- * All rights reserved.
+ * Copyright 2015 gRPC authors.
  *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions are
- * met:
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
  *
- *     * Redistributions of source code must retain the above copyright
- * notice, this list of conditions and the following disclaimer.
- *     * Redistributions in binary form must reproduce the above
- * copyright notice, this list of conditions and the following disclaimer
- * in the documentation and/or other materials provided with the
- * distribution.
- *     * Neither the name of Google Inc. nor the names of its
- * contributors may be used to endorse or promote products derived from
- * this software without specific prior written permission.
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  *
  */
 
 #ifndef GRPC_CORE_LIB_TRANSPORT_CONNECTIVITY_STATE_H
 #define GRPC_CORE_LIB_TRANSPORT_CONNECTIVITY_STATE_H
 
+#include <grpc/support/port_platform.h>
+
 #include <grpc/grpc.h>
+
+#include "src/core/lib/debug/trace.h"
+#include "src/core/lib/gprpp/atomic.h"
+#include "src/core/lib/gprpp/map.h"
+#include "src/core/lib/gprpp/orphanable.h"
+#include "src/core/lib/iomgr/closure.h"
 #include "src/core/lib/iomgr/exec_ctx.h"
 
-typedef struct grpc_connectivity_state_watcher {
-  /** we keep watchers in a linked list */
-  struct grpc_connectivity_state_watcher *next;
-  /** closure to notify on change */
-  grpc_closure *notify;
-  /** the current state as believed by the watcher */
-  grpc_connectivity_state *current;
-} grpc_connectivity_state_watcher;
+namespace grpc_core {
 
-typedef struct {
-  /** current connectivity state */
-  grpc_connectivity_state current_state;
-  /** error associated with state */
-  grpc_error *current_error;
-  /** all our watchers */
-  grpc_connectivity_state_watcher *watchers;
-  /** a name to help debugging */
-  char *name;
-} grpc_connectivity_state_tracker;
+extern TraceFlag grpc_connectivity_state_trace;
 
-extern int grpc_connectivity_state_trace;
+// Enum to string conversion.
+const char* ConnectivityStateName(grpc_connectivity_state state);
 
-const char *grpc_connectivity_state_name(grpc_connectivity_state state);
+// Interface for watching connectivity state.
+// Subclasses must implement the Notify() method.
+//
+// Note: Most callers will want to use
+// AsyncConnectivityStateWatcherInterface instead.
+class ConnectivityStateWatcherInterface
+    : public InternallyRefCounted<ConnectivityStateWatcherInterface> {
+ public:
+  virtual ~ConnectivityStateWatcherInterface() = default;
 
-void grpc_connectivity_state_init(grpc_connectivity_state_tracker *tracker,
-                                  grpc_connectivity_state init_state,
-                                  const char *name);
-void grpc_connectivity_state_destroy(grpc_exec_ctx *exec_ctx,
-                                     grpc_connectivity_state_tracker *tracker);
+  // Notifies the watcher that the state has changed to new_state.
+  virtual void Notify(grpc_connectivity_state new_state) = 0;
 
-/** Set connectivity state; not thread safe; access must be serialized with an
- * external lock */
-void grpc_connectivity_state_set(grpc_exec_ctx *exec_ctx,
-                                 grpc_connectivity_state_tracker *tracker,
-                                 grpc_connectivity_state state,
-                                 grpc_error *associated_error,
-                                 const char *reason);
+  void Orphan() override { Unref(); }
+};
 
-grpc_connectivity_state grpc_connectivity_state_check(
-    grpc_connectivity_state_tracker *tracker, grpc_error **current_error);
+// An alternative watcher interface that performs notifications via an
+// asynchronous callback scheduled on the ExecCtx.
+// Subclasses must implement the OnConnectivityStateChange() method.
+class AsyncConnectivityStateWatcherInterface
+    : public ConnectivityStateWatcherInterface {
+ public:
+  virtual ~AsyncConnectivityStateWatcherInterface() = default;
 
-/** Return 1 if the channel should start connecting, 0 otherwise.
-    If current==NULL cancel notify if it is already queued (success==0 in that
-    case) */
-int grpc_connectivity_state_notify_on_state_change(
-    grpc_exec_ctx *exec_ctx, grpc_connectivity_state_tracker *tracker,
-    grpc_connectivity_state *current, grpc_closure *notify);
+  // Schedules a closure on the ExecCtx to invoke
+  // OnConnectivityStateChange() asynchronously.
+  void Notify(grpc_connectivity_state new_state) override final;
+
+ protected:
+  class Notifier;
+
+  // If \a combiner is nullptr, then the notification will be scheduled on the
+  // ExecCtx.
+  explicit AsyncConnectivityStateWatcherInterface(Combiner* combiner = nullptr)
+      : combiner_(combiner) {}
+
+  // Invoked asynchronously when Notify() is called.
+  virtual void OnConnectivityStateChange(grpc_connectivity_state new_state) = 0;
+
+ private:
+  Combiner* combiner_;
+};
+
+// Tracks connectivity state.  Maintains a list of watchers that are
+// notified whenever the state changes.
+//
+// Note that once the state becomes SHUTDOWN, watchers will be notified
+// and then automatically orphaned (i.e., RemoveWatcher() does not need
+// to be called).
+class ConnectivityStateTracker {
+ public:
+  ConnectivityStateTracker(const char* name,
+                           grpc_connectivity_state state = GRPC_CHANNEL_IDLE)
+      : name_(name), state_(state) {}
+
+  ~ConnectivityStateTracker();
+
+  // Adds a watcher.
+  // If the current state is different than initial_state, the watcher
+  // will be notified immediately.  Otherwise, it will be notified
+  // whenever the state changes.
+  // Not thread safe; access must be serialized with an external lock.
+  void AddWatcher(grpc_connectivity_state initial_state,
+                  OrphanablePtr<ConnectivityStateWatcherInterface> watcher);
+
+  // Removes a watcher.  The watcher will be orphaned.
+  // Not thread safe; access must be serialized with an external lock.
+  void RemoveWatcher(ConnectivityStateWatcherInterface* watcher);
+
+  // Sets connectivity state.
+  // Not thread safe; access must be serialized with an external lock.
+  void SetState(grpc_connectivity_state state, const char* reason);
+
+  // Gets the current state.
+  // Thread safe; no need to use an external lock.
+  grpc_connectivity_state state() const;
+
+ private:
+  const char* name_;
+  Atomic<grpc_connectivity_state> state_;
+  // TODO(roth): Once we can use C++-14 heterogeneous lookups, this can
+  // be a set instead of a map.
+  std::map<ConnectivityStateWatcherInterface*,
+           OrphanablePtr<ConnectivityStateWatcherInterface>>
+      watchers_;
+};
+
+}  // namespace grpc_core
 
 #endif /* GRPC_CORE_LIB_TRANSPORT_CONNECTIVITY_STATE_H */
